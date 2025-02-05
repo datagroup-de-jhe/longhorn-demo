@@ -237,3 +237,10 @@ Dieses Demo demonstriert die Hochverfügbarkeit und Widerstandsfähigkeit von Lo
 
 -   **Beschreibung**: Überwacht die Longhorn Manager-Pods.
 -   **Ablauf**: Führt `watch kubectl -n $(NAMESPACE) get pods | grep longhorn-manager` aus.
+-   
+
+#### `TODO`
+
+Rolling Update für MaschinenDeployment - EINBAUEN (FlatCar + iSCSI-Init)
+
+
