@@ -1,4 +1,49 @@
 
+<![endif]-->
+
+**Ziel des Demos**
+
+Dieses Demo demonstriert die Hochverfügbarkeit und Widerstandsfähigkeit von Longhorn bei verschiedenen Ausfällen in einem Kubernetes-Cluster. Es zeigt, dass Longhorn auch bei schwerwiegenderen Störungen weiterhin stabil und performant ist.
+
+**Was wird gezeigt?**
+
+**Setup:**
+
+-   Installation von Longhorn.
+-   Erstellung eines RWX-Volumes mit 3 Replicas.
+-   Bereitstellung einer Testanwendung, die auf das RWX-Volume zugreift.
+
+**Tests:**
+
+-   Simulation von Ausfällen:
+
+-   Manager-Ausfall.
+-   Engine-Ausfall.
+-   Replica-Ausfall.
+-   Node-Ausfall.
+
+-   Demonstration der Recovery-Mechanismen von Longhorn.
+-   Überwachung der Verfügbarkeit der Testanwendung während der Tests.
+
+**Latenzüberwachung:**
+
+-   Kontinuierliches Monitoring der Antwortzeit der Testanwendung, um zu zeigen, dass sie weiterhin erreichbar ist.
+
+**Workload-Test:**
+
+-   Führt realistische I/O-Workloads mit `kbench` aus, um die Performance von Longhorn unter Last zu demonstrieren.
+
+**Automatisiertes Cleanup:**
+
+-   Nach jedem Test wird der Cluster automatisch bereinigt, um einen sauberen Zustand für den nächsten Test zu gewährleisten.
+
+**Erwartetes Ergebnis**
+
+-   Die Testanwendung bleibt während der gesamten Tests lesend/schreibend verfügbar.
+-   Longhorn führt automatische Failover- und Rekonstruktion-Prozesse durch.
+-   Die Latenz bleibt konstant, selbst bei Ausfällen.
+
+
 ## Übersicht der Variablen
 
 -   **NAMESPACE**: Namespace, in dem Longhorn installiert und betrieben wird (Standard: `longhorn-system`).
