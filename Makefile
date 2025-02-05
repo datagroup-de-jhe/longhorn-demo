@@ -143,3 +143,58 @@ check-app-availability: ## Prüft die Verfügbarkeit der Testanwendung
 ## Full Setup
 full-setup: install-longhorn create-volume create-pvc create-deployment create-service expose-dashboard expose-app check-status check-app-availability ## Führt den kompletten Setup-Prozess durch
 	@echo "Full setup completed successfully."
+## Anwendungsverfügbarkeit überprüfen
+check-app-availability: ## Prüft die Verfügbarkeit der Testanwendung
+    @echo "Checking application availability at http://localhost:$(APP_PORT)"
+    @while ! curl -s -o /dev/null -w "%{http_code}" http://localhost:$(APP_PORT) | grep -q "200"; do \
+        echo "Application not yet available. Retrying..."; \
+        sleep 5; \
+    done
+    @echo "Application is available at http://localhost:$(APP_PORT)"
+
+## Manager-Ausfall simulieren
+simulate-manager-failure: MANAGER_POD ?= $(shell kubectl -n $(NAMESPACE) get pods | grep longhorn-manager | head -n 1 | awk '{print $$1}') ## Simuliert einen Manager-Ausfall
+    @echo "Simulating Manager failure..."
+    kubectl -n $(NAMESPACE) delete pod $(MANAGER_POD)
+    @echo "Waiting for new Manager to start..."
+    @sleep 10
+
+## Engine-Ausfall simulieren
+simulate-engine-failure: ENGINE_POD ?= $(shell kubectl -n $(NAMESPACE) get pods | grep engine | head -n 1 | awk '{print $$1}') ## Simuliert einen Engine-Ausfall
+    @echo "Simulating Engine failure..."
+    kubectl -n $(NAMESPACE) delete pod $(ENGINE_POD)
+    @echo "Waiting for new Engine to start..."
+    @sleep 10
+
+## Replica-Ausfall simulieren
+simulate-replica-failure: REPLICA_POD ?= $(shell kubectl -n $(NAMESPACE) get pods | grep replica | head -n 1 | awk '{print $$1}') ## Simuliert einen Replica-Ausfall
+    @echo "Simulating Replica failure..."
+    kubectl -n $(NAMESPACE) delete pod $(REPLICA_POD)
+    @echo "Waiting for new Replica to start..."
+    @sleep 10
+
+## Node abschalten (Simulation)
+drain-node: NODE_NAME ?= $(shell kubectl get nodes | grep Ready | head -n 1 | awk '{print $$1}') ## Simuliert einen Node-Ausfall
+    @echo "Draining node $(NODE_NAME)..."
+    kubectl drain $(NODE_NAME) --ignore-daemonsets --delete-local-data --force
+
+## Node wiederherstellen
+uncordon-node: NODE_NAME ?= $(shell kubectl get nodes | grep SchedulingDisabled | awk '{print $$1}') ## Setzt den Node wieder frei
+    @echo "Uncordoning node $(NODE_NAME)..."
+    kubectl uncordon $(NODE_NAME)
+
+## Watch Replicas
+watch-replicas: ## Überwacht die Longhorn Replicas
+    watch kubectl -n $(NAMESPACE) get replica
+
+## Watch Pods
+watch-pods: ## Überwacht die Pods im Cluster
+    watch kubectl get pods -o wide
+
+## Watch Engines
+watch-engines: ## Überwacht die Longhorn Engines
+    watch kubectl -n $(NAMESPACE) get engine
+
+## Watch Managers
+watch-managers: ## Überwacht die Longhorn Manager
+    watch kubectl -n $(NAMESPACE) get pods | grep longhorn-manager
